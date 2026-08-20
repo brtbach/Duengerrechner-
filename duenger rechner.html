@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Dünger-Rechner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1210;
+    --panel:#151b17;
+    --panel-2:#1b231e;
+    --line:#2a332c;
+    --text:#e7ebe4;
+    --text-dim:#8b9686;
+    --green:#6ee89a;
+    --amber:#e8b23d;
+    --amber-dim:#5a4a1f;
+    --blue:#6db4e8;
+    --blue-dim:#233c52;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    padding:2rem 1rem 4rem;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{
+    font-size:20px;font-weight:600;margin:0 0 4px;
+    letter-spacing:0.02em;
+  }
+  .sub{color:var(--text-dim);font-size:13px;margin:0 0 1.25rem;}
+  .tabs{display:flex;gap:8px;margin-bottom:1.5rem;}
+  .tab{
+    flex:1;text-align:center;padding:10px;border-radius:10px;
+    background:var(--panel);border:1px solid var(--line);
+    color:var(--text-dim);font-size:14px;font-weight:500;cursor:pointer;
+    user-select:none;
+  }
+  .tab.active{border-color:var(--green);color:var(--green);background:var(--panel-2);}
+  .profile{display:none;}
+  .profile.active{display:block;}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    padding:4px 10px;border-radius:20px;margin-bottom:1rem;
+  }
+  .badge.dwc{background:var(--blue-dim);color:var(--blue);}
+  .badge.coco{background:var(--amber-dim);color:var(--amber);}
+  .ph-note{
+    display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:8px 12px;margin-bottom:1.25rem;
+  }
+  .ph-note b{color:var(--text);font-family:'JetBrains Mono',monospace;}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.25rem 1.25rem 1.5rem;
+    margin-bottom:1.25rem;
+  }
+  .card h2{
+    font-size:13px;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--text-dim);font-weight:600;margin:0 0 1rem;
+    display:flex;align-items:center;gap:8px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+  .dot.amber{background:var(--amber);}
+  .row{display:flex;gap:12px;margin-bottom:12px;}
+  .field{flex:1;}
+  .field label{
+    display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;
+  }
+  input[type=number]{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--text);font-family:'JetBrains Mono',monospace;font-size:16px;
+    padding:9px 10px;border-radius:8px;
+  }
+  input[type=number]:focus{outline:none;border-color:var(--green);}
+  .readout{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;
+  }
+  .lcd{
+    background:#080b09;border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;
+  }
+  .lcd .lbl{font-size:11px;color:var(--text-dim);margin-bottom:4px;}
+  .lcd .val{
+    font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;
+    color:var(--green);letter-spacing:0.01em;
+  }
+  .lcd .unit{font-size:13px;color:var(--text-dim);margin-left:4px;}
+  .lcd.amber .val{color:var(--amber);}
+  .note{
+    font-size:12px;color:var(--text-dim);margin-top:12px;line-height:1.5;
+    border-top:1px solid var(--line);padding-top:10px;
+  }
+  .warn{
+    display:none;background:var(--amber-dim);border:1px solid var(--amber);
+    border-radius:8px;padding:10px 12px;font-size:13px;margin-top:12px;color:#f3d9a3;
+  }
+  .warn.show{display:block;}
+  details{margin-bottom:1.25rem;}
+  summary{
+    cursor:pointer;font-size:13px;color:var(--text-dim);
+    padding:8px 4px;list-style:none;display:flex;align-items:center;gap:6px;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:'▸';font-size:11px;transition:transform .15s;}
+  details[open] summary::before{transform:rotate(90deg);}
+  .settings-grid{
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;
+  }
+  .settings-grid .field label{font-size:11px;}
+  .mini{font-size:11px;color:var(--text-dim);margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dünger-Rechner</h1>
+  <p class="sub">Zwei Rezepte, jeweils mit eigener Basis-EC · skaliert proportional auf Zielwert</p>
+
+  <div class="tabs">
+    <div class="tab active" id="tabDwc" onclick="switchProfile('dwc')">DWC</div>
+    <div class="tab" id="tabCoco" onclick="switchProfile('coco')">Kokos</div>
+  </div>
+
+  <!-- ================= DWC PROFILE ================= -->
+  <div class="profile active" id="profileDwc">
+    <span class="badge dwc">Für DWC</span>
+    <div class="ph-note">pH nach dem Mischen: <b>5,7</b></div>
+
+    <details>
+      <summary>Basisrezept anpassen</summary>
+      <div class="settings-grid">
+        <div class="field">
+          <label>Basis-EC</label>
+          <input type="number" id="dwc_baseEc" value="1.3" step="0.1">
+        </div>
+        <div class="field">
+          <label>Combi Sol g/l</label>
+          <input type="number" id="dwc_doseA" value="0.4" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock A %</label>
+          <input type="number" id="dwc_stockA" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Calcinit g/l</label>
+          <input type="number" id="dwc_doseB" value="0.6" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock B %</label>
+          <input type="number" id="dwc_stockB" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Bittersalz g/l</label>
+          <input type="number" id="dwc_doseC" value="0.4" step="0.01">
+        </div>
+        <div class="field">
+          <label>Athena Cleanse ml/l</label>
+          <input type="number" id="dwc_doseCleanse" value="0.5" step="0.1">
+        </div>
+      </div>
+      <p class="mini">Tank A/B = Peters Combi Sol + Bittersalz (kombinierte Stammlösung). Calcinit separat als eigene Stammlösung. Athena Cleanse skaliert nur mit dem Volumen, nicht mit dem EC-Ziel.</p>
+    </details>
+
+    <div class="card">
+      <h2><span class="dot"></span>Tank-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Tankvolumen (L)</label>
+          <input type="number" id="dwc_tankVol" value="40" step="1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="dwc_tankEc" value="1.2" step="0.1">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd">
+          <div class="lbl">Combi Sol + Bittersalz (Tank B)</div>
+          <div class="val" id="dwc_outAB">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd">
+          <div class="lbl">Calcinit (Tank A)</div>
+          <div class="val" id="dwc_outCA">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
+        <div class="lcd">
+          <div class="lbl">Athena Cleanse</div>
+          <div class="val" id="dwc_outCleanse">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="note" id="dwc_tankNote"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot amber"></span>Nachfüll-/Addback-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Volumen nach Auffüllen (L)</label>
+          <input type="number" id="dwc_abVol" value="40" step="1">
+        </div>
+        <div class="field">
+          <label>Gemessener EC jetzt</label>
+          <input type="number" id="dwc_abCur" value="0.5" step="0.1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="dwc_abTarget" value="1.3" step="0.1">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd amber">
+          <div class="lbl">Combi Sol + Bittersalz (Tank B)</div>
+          <div class="val" id="dwc_outABad">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd amber">
+          <div class="lbl">Calcinit (Tank A)</div>
+          <div class="val" id="dwc_outCAad">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="warn" id="dwc_abWarn">Aktueller EC liegt bereits auf oder über dem Ziel – kein Nachdosieren nötig.</div>
+      <div class="note">Nimmt lineares Verhältnis zwischen Dosierung und EC an. Nach dem Nachdosieren mit EC-Meter kontrollieren.</div>
+    </div>
+  </div>
+
+  <!-- ================= COCO PROFILE ================= -->
+  <div class="profile" id="profileCoco">
+    <span class="badge coco">Für Kokos</span>
+    <div class="ph-note">pH nach dem Mischen: <b>5,3</b></div>
+
+    <details>
+      <summary>Basisrezept anpassen</summary>
+      <div class="settings-grid">
+        <div class="field">
+          <label>Basis-EC</label>
+          <input type="number" id="coco_baseEc" value="2.1" step="0.1">
+        </div>
+        <div class="field">
+          <label>Hakaphos Rot g/l</label>
+          <input type="number" id="coco_doseRot" value="0.6" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock Rot %</label>
+          <input type="number" id="coco_stockRot" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>T.A. CalMag ml/l</label>
+          <input type="number" id="coco_doseCalmag" value="4.5" step="0.1">
+        </div>
+        <div class="field">
+          <label>Athena Cleanse ml/l</label>
+          <input type="number" id="coco_doseCleanse" value="0.5" step="0.1">
+        </div>
+      </div>
+      <p class="mini">Hakaphos Rot aus 10%iger Stammlösung dosiert. T.A. CalMag ist fertiges Flüssigkonzentrat, wird direkt in ml/l skaliert (kein Stammlösungs-Umweg). Athena Cleanse skaliert nur mit dem Volumen, nicht mit dem EC-Ziel.</p>
+    </details>
+
+    <div class="card">
+      <h2><span class="dot"></span>Tank-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Tankvolumen (L)</label>
+          <input type="number" id="coco_tankVol" value="20" step="1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="coco_tankEc" value="2.0" step="0.1">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd">
+          <div class="lbl">Hakaphos Rot (Stammlösung)</div>
+          <div class="val" id="coco_outRot">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd">
+          <div class="lbl">T.A. CalMag</div>
+          <div class="val" id="coco_outCalmag">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
+        <div class="lcd">
+          <div class="lbl">Athena Cleanse</div>
+          <div class="val" id="coco_outCleanse">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="note" id="coco_tankNote"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot amber"></span>Nachfüll-/Addback-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Volumen nach Auffüllen (L)</label>
+          <input type="number" id="coco_abVol" value="20" step="1">
+        </div>
+        <div class="field">
+          <label>Gemessener EC jetzt</label>
+          <input type="number" id="coco_abCur" value="0.8" step="0.1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="coco_abTarget" value="2.0" step="0.1">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd amber">
+          <div class="lbl">Hakaphos Rot (Stammlösung)</div>
+          <div class="val" id="coco_outRotad">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd amber">
+          <div class="lbl">T.A. CalMag</div>
+          <div class="val" id="coco_outCalmagad">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="warn" id="coco_abWarn">Aktueller EC liegt bereits auf oder über dem Ziel – kein Nachdosieren nötig.</div>
+      <div class="note">Nimmt lineares Verhältnis zwischen Dosierung und EC an. Nach dem Nachdosieren mit EC-Meter kontrollieren.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function num(id){return parseFloat(document.getElementById(id).value)||0;}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString('de-DE');}
+
+function mlFromStock(doseGperL, stockPercent, scale, volume){
+  const scaledDose = doseGperL * scale;
+  const mlPerL = stockPercent > 0 ? (scaledDose * 100 / stockPercent) : 0;
+  return mlPerL * volume;
+}
+function mlDirect(doseMlPerL, scale, volume){
+  return doseMlPerL * scale * volume;
+}
+
+function switchProfile(p){
+  document.getElementById('tabDwc').classList.toggle('active', p==='dwc');
+  document.getElementById('tabCoco').classList.toggle('active', p==='coco');
+  document.getElementById('profileDwc').classList.toggle('active', p==='dwc');
+  document.getElementById('profileCoco').classList.toggle('active', p==='coco');
+}
+
+function calcDwc(){
+  const baseEc = num('dwc_baseEc');
+  const doseA = num('dwc_doseA'), stockA = num('dwc_stockA');
+  const doseB = num('dwc_doseB'), stockB = num('dwc_stockB');
+  const doseC = num('dwc_doseC');
+  const doseCleanse = num('dwc_doseCleanse');
+
+  const tankVol = num('dwc_tankVol');
+  const tankEc = num('dwc_tankEc');
+  const scaleTank = baseEc > 0 ? tankEc / baseEc : 0;
+
+  const mlAB = mlFromStock(doseA, stockA, scaleTank, tankVol);
+  const mlCA = mlFromStock(doseB, stockB, scaleTank, tankVol);
+  const mlCleanse = doseCleanse * tankVol;
+
+  document.getElementById('dwc_outAB').innerHTML = fmt(mlAB) + '<span class="unit">ml</span>';
+  document.getElementById('dwc_outCA').innerHTML = fmt(mlCA) + '<span class="unit">ml</span>';
+  document.getElementById('dwc_outCleanse').innerHTML = fmt(mlCleanse) + '<span class="unit">ml</span>';
+
+  const scaledC = doseC * scaleTank;
+  document.getElementById('dwc_tankNote').textContent =
+    'Bei EC ' + fmt(tankEc) + ': Combi Sol ' + fmt(doseA*scaleTank) + ' g/l · Calcinit ' + fmt(doseB*scaleTank) + ' g/l · Bittersalz ' + fmt(scaledC) + ' g/l';
+
+  const abVol = num('dwc_abVol');
+  const abCur = num('dwc_abCur');
+  const abTarget = num('dwc_abTarget');
+  const deltaEc = abTarget - abCur;
+  const warnEl = document.getElementById('dwc_abWarn');
+
+  if(deltaEc <= 0){
+    warnEl.classList.add('show');
+    document.getElementById('dwc_outABad').innerHTML = '0<span class="unit">ml</span>';
+    document.getElementById('dwc_outCAad').innerHTML = '0<span class="unit">ml</span>';
+  } else {
+    warnEl.classList.remove('show');
+    const scaleAB = baseEc > 0 ? deltaEc / baseEc : 0;
+    const mlABad = mlFromStock(doseA, stockA, scaleAB, abVol);
+    const mlCAad = mlFromStock(doseB, stockB, scaleAB, abVol);
+    document.getElementById('dwc_outABad').innerHTML = fmt(mlABad) + '<span class="unit">ml</span>';
+    document.getElementById('dwc_outCAad').innerHTML = fmt(mlCAad) + '<span class="unit">ml</span>';
+  }
+}
+
+function calcCoco(){
+  const baseEc = num('coco_baseEc');
+  const doseRot = num('coco_doseRot'), stockRot = num('coco_stockRot');
+  const doseCalmag = num('coco_doseCalmag');
+  const doseCleanse = num('coco_doseCleanse');
+
+  const tankVol = num('coco_tankVol');
+  const tankEc = num('coco_tankEc');
+  const scaleTank = baseEc > 0 ? tankEc / baseEc : 0;
+
+  const mlRot = mlFromStock(doseRot, stockRot, scaleTank, tankVol);
+  const mlCalmag = mlDirect(doseCalmag, scaleTank, tankVol);
+  const mlCleanse = doseCleanse * tankVol;
+
+  document.getElementById('coco_outRot').innerHTML = fmt(mlRot) + '<span class="unit">ml</span>';
+  document.getElementById('coco_outCalmag').innerHTML = fmt(mlCalmag) + '<span class="unit">ml</span>';
+  document.getElementById('coco_outCleanse').innerHTML = fmt(mlCleanse) + '<span class="unit">ml</span>';
+
+  document.getElementById('coco_tankNote').textContent =
+    'Bei EC ' + fmt(tankEc) + ': Hakaphos Rot ' + fmt(doseRot*scaleTank) + ' g/l · T.A. CalMag ' + fmt(doseCalmag*scaleTank) + ' ml/l';
+
+  const abVol = num('coco_abVol');
+  const abCur = num('coco_abCur');
+  const abTarget = num('coco_abTarget');
+  const deltaEc = abTarget - abCur;
+  const warnEl = document.getElementById('coco_abWarn');
+
+  if(deltaEc <= 0){
+    warnEl.classList.add('show');
+    document.getElementById('coco_outRotad').innerHTML = '0<span class="unit">ml</span>';
+    document.getElementById('coco_outCalmagad').innerHTML = '0<span class="unit">ml</span>';
+  } else {
+    warnEl.classList.remove('show');
+    const scaleAB = baseEc > 0 ? deltaEc / baseEc : 0;
+    const mlRotad = mlFromStock(doseRot, stockRot, scaleAB, abVol);
+    const mlCalmagad = mlDirect(doseCalmag, scaleAB, abVol);
+    document.getElementById('coco_outRotad').innerHTML = fmt(mlRotad) + '<span class="unit">ml</span>';
+    document.getElementById('coco_outCalmagad').innerHTML = fmt(mlCalmagad) + '<span class="unit">ml</span>';
+  }
+}
+
+const ALL_INPUT_IDS = [
+  'dwc_baseEc','dwc_doseA','dwc_stockA','dwc_doseB','dwc_stockB','dwc_doseC','dwc_doseCleanse',
+  'dwc_tankVol','dwc_tankEc','dwc_abVol','dwc_abCur','dwc_abTarget',
+  'coco_baseEc','coco_doseRot','coco_stockRot','coco_doseCalmag','coco_doseCleanse',
+  'coco_tankVol','coco_tankEc','coco_abVol','coco_abCur','coco_abTarget'
+];
+
+function saveSettings(){
+  try{
+    const data = {};
+    ALL_INPUT_IDS.forEach(id => { data[id] = document.getElementById(id).value; });
+    localStorage.setItem('duenger_settings', JSON.stringify(data));
+  }catch(e){ /* Speichern nicht verfügbar, still ignorieren */ }
+}
+
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem('duenger_settings');
+    if(raw){
+      const data = JSON.parse(raw);
+      ALL_INPUT_IDS.forEach(id => {
+        if(data[id] !== undefined && document.getElementById(id)){
+          document.getElementById(id).value = data[id];
+        }
+      });
+    }
+  }catch(e){ /* nichts gespeichert oder nicht verfügbar */ }
+}
+
+document.querySelectorAll('#profileDwc input').forEach(el => el.addEventListener('input', () => { calcDwc(); saveSettings(); }));
+document.querySelectorAll('#profileCoco input').forEach(el => el.addEventListener('input', () => { calcCoco(); saveSettings(); }));
+
+loadSettings();
+calcDwc();
+calcCoco();
+</script>
+</body>
+</html>
