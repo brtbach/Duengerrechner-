@@ -140,6 +140,7 @@
   <div class="tabs">
     <div class="tab active" id="tabDwc" onclick="switchProfile('dwc')">DWC</div>
     <div class="tab" id="tabCoco" onclick="switchProfile('coco')">Kokos</div>
+    <div class="tab" id="tabLw" onclick="switchProfile('lw')">Kokos LW</div>
     <div class="tab" id="tabAthena" onclick="switchProfile('athena')">Athena</div>
   </div>
 
@@ -383,6 +384,144 @@
     </div>
   </div>
 
+  <!-- ================= KOKOS LW PROFILE ================= -->
+  <div class="profile" id="profileLw">
+    <span class="badge coco">Für Kokos · Leitungswasser</span>
+    <div class="ph-note">pH nach dem Mischen: <b>6,7</b></div>
+
+    <details>
+      <summary>Basisrezept anpassen</summary>
+      <div class="settings-grid">
+        <div class="field">
+          <label>Basis-EC</label>
+          <input type="number" id="lw_baseEc" value="2.15" step="0.01">
+        </div>
+        <div class="field">
+          <label>Hakaphos Rot g/l</label>
+          <input type="number" id="lw_doseRot" value="0.6" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock Rot %</label>
+          <input type="number" id="lw_stockRot" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Calcinit g/l</label>
+          <input type="number" id="lw_doseCalcinit" value="0.5" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock Calcinit %</label>
+          <input type="number" id="lw_stockCalcinit" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Bittersalz g/l</label>
+          <input type="number" id="lw_doseBittersalz" value="0.3" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock Bittersalz %</label>
+          <input type="number" id="lw_stockBittersalz" value="10" step="1">
+        </div>
+      </div>
+      <p class="mini">Auf Leitungswasser-Basis. Alle drei Salze aus separaten Stammlösungen (je 10%), unabhängig voneinander dosiert.</p>
+
+      <div class="settings-sub">Nährstoffgehalt pro Gramm (mg)</div>
+      <div class="settings-grid">
+        <div class="field"><label>Rot: N</label><input type="number" id="lw_rot_n" value="80" step="0.1"></div>
+        <div class="field"><label>Rot: P</label><input type="number" id="lw_rot_p" value="52.4" step="0.1"></div>
+        <div class="field"><label>Rot: K</label><input type="number" id="lw_rot_k" value="199.2" step="0.1"></div>
+        <div class="field"><label>Rot: Mg</label><input type="number" id="lw_rot_mg" value="24.1" step="0.1"></div>
+        <div class="field"><label>Calcinit: N</label><input type="number" id="lw_ca_n" value="155" step="0.1"></div>
+        <div class="field"><label>Calcinit: Ca</label><input type="number" id="lw_ca_ca" value="189.5" step="0.1"></div>
+        <div class="field"><label>Bittersalz: Mg</label><input type="number" id="lw_bs_mg" value="98.6" step="0.1"></div>
+      </div>
+
+      <div class="settings-sub">Leitungswasser-Grundlast (mg/l, fix)</div>
+      <div class="settings-grid">
+        <div class="field"><label>N</label><input type="number" id="lw_water_n" value="3.4" step="0.1"></div>
+        <div class="field"><label>K</label><input type="number" id="lw_water_k" value="7.6" step="0.1"></div>
+        <div class="field"><label>Ca</label><input type="number" id="lw_water_ca" value="84" step="0.1"></div>
+        <div class="field"><label>Mg</label><input type="number" id="lw_water_mg" value="17" step="0.1"></div>
+      </div>
+      <p class="mini">Kommt zusätzlich zum Dünger dazu, unabhängig von der eingestellten EC.</p>
+    </details>
+
+    <div class="card">
+      <h2><span class="dot"></span>Tank-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Tankvolumen (L)</label>
+          <input type="number" id="lw_tankVol" value="40" step="1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="lw_tankEc" value="2.15" step="0.01">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd">
+          <div class="lbl">Hakaphos Rot</div>
+          <div class="val" id="lw_outRot">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd">
+          <div class="lbl">Calcinit</div>
+          <div class="val" id="lw_outCalcinit">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
+        <div class="lcd">
+          <div class="lbl">Bittersalz</div>
+          <div class="val" id="lw_outBittersalz">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="nutrient-grid">
+        <div class="nutrient-cell"><div class="n-lbl">N</div><div class="n-val" id="lw_n_N">–</div></div>
+        <div class="nutrient-cell"><div class="n-lbl">P</div><div class="n-val" id="lw_n_P">–</div></div>
+        <div class="nutrient-cell"><div class="n-lbl">K</div><div class="n-val" id="lw_n_K">–</div></div>
+        <div class="nutrient-cell"><div class="n-lbl">Ca</div><div class="n-val" id="lw_n_Ca">–</div></div>
+        <div class="nutrient-cell"><div class="n-lbl">Mg</div><div class="n-val" id="lw_n_Mg">–</div></div>
+      </div>
+      <div class="note" id="lw_tankNote"></div>
+      <div class="note" style="border-top:none;padding-top:0;margin-top:8px;">
+        <a href="https://bergrow.github.io/duengerrechner/?s=MjgsMC42OzM5LDAuNTs4LDAuMw==" target="_blank" style="color:var(--green);text-decoration:none;">🔗 Bergrows</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot amber"></span>Nachfüll-/Addback-Rechner</h2>
+      <div class="row">
+        <div class="field">
+          <label>Volumen nach Auffüllen (L)</label>
+          <input type="number" id="lw_abVol" value="40" step="1">
+        </div>
+        <div class="field">
+          <label>Gemessener EC jetzt</label>
+          <input type="number" id="lw_abCur" value="0.8" step="0.1">
+        </div>
+        <div class="field">
+          <label>Ziel-EC</label>
+          <input type="number" id="lw_abTarget" value="2.15" step="0.01">
+        </div>
+      </div>
+      <div class="readout">
+        <div class="lcd amber">
+          <div class="lbl">Hakaphos Rot</div>
+          <div class="val" id="lw_outRotad">–<span class="unit">ml</span></div>
+        </div>
+        <div class="lcd amber">
+          <div class="lbl">Calcinit</div>
+          <div class="val" id="lw_outCalcinitad">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
+        <div class="lcd amber">
+          <div class="lbl">Bittersalz</div>
+          <div class="val" id="lw_outBittersalzad">–<span class="unit">ml</span></div>
+        </div>
+      </div>
+      <div class="warn" id="lw_abWarn">Aktueller EC liegt bereits auf oder über dem Ziel – kein Nachdosieren nötig.</div>
+      <div class="note">Nimmt lineares Verhältnis zwischen Dosierung und EC an. Nach dem Nachdosieren mit EC-Meter kontrollieren.</div>
+    </div>
+  </div>
+
   <!-- ================= ATHENA PROFILE ================= -->
   <div class="profile" id="profileAthena">
     <span class="badge coco" style="background:var(--blue-dim);color:var(--blue);">Athena Pro Line</span>
@@ -398,11 +537,15 @@
       <summary>Basisrezept anpassen</summary>
       <div class="settings-grid">
         <div class="field">
-          <label>Fade:Core-Verhältnis</label>
-          <input type="number" id="ath_fadeRatio" value="0.944" step="0.001">
+          <label>Fade bei EC 2,0 (ml/10L)</label>
+          <input type="number" id="ath_fadeAt2" value="34.1" step="0.1">
+        </div>
+        <div class="field">
+          <label>Fade bei EC 3,0 (ml/10L)</label>
+          <input type="number" id="ath_fadeAt3" value="51" step="0.1">
         </div>
       </div>
-      <p class="mini">Core und Grow/Bloom werden aus der offiziellen 226g/l-Stammlösungstabelle interpoliert (Zielwerte bei EC 1,0–4,0 exakt wie im Athena-Datenblatt). Fade wird als Verhältnis zu Core berechnet (bestätigter Ankerpunkt: EC 3,0 → 51 ml Fade vs. 54 ml Core, Verhältnis 0,944).</p>
+      <p class="mini">Core und Grow/Bloom werden aus der offiziellen 226g/l-Stammlösungstabelle interpoliert (Zielwerte bei EC 1,0–4,0 exakt wie im Athena-Datenblatt). Fade wird zwischen zwei bestätigten Ankerpunkten (EC 2,0 und EC 3,0) interpoliert/extrapoliert.</p>
 
       <div class="settings-sub">Nährstoffgehalt pro Gramm (mg)</div>
       <div class="settings-grid">
@@ -504,9 +647,11 @@ function mlDirect(doseMlPerL, scale, volume){
 function switchProfile(p){
   document.getElementById('tabDwc').classList.toggle('active', p==='dwc');
   document.getElementById('tabCoco').classList.toggle('active', p==='coco');
+  document.getElementById('tabLw').classList.toggle('active', p==='lw');
   document.getElementById('tabAthena').classList.toggle('active', p==='athena');
   document.getElementById('profileDwc').classList.toggle('active', p==='dwc');
   document.getElementById('profileCoco').classList.toggle('active', p==='coco');
+  document.getElementById('profileLw').classList.toggle('active', p==='lw');
   document.getElementById('profileAthena').classList.toggle('active', p==='athena');
 }
 
@@ -646,6 +791,72 @@ function calcCoco(){
   }
 }
 
+function calcLw(){
+  const baseEc = num('lw_baseEc');
+  const doseRot = num('lw_doseRot'), stockRot = num('lw_stockRot');
+  const doseCalcinit = num('lw_doseCalcinit'), stockCalcinit = num('lw_stockCalcinit');
+  const doseBittersalz = num('lw_doseBittersalz'), stockBittersalz = num('lw_stockBittersalz');
+
+  const tankVol = num('lw_tankVol');
+  const tankEc = num('lw_tankEc');
+  const scaleTank = baseEc > 0 ? tankEc / baseEc : 0;
+
+  const mlRot = mlFromStock(doseRot, stockRot, scaleTank, tankVol);
+  const mlCalcinit = mlFromStock(doseCalcinit, stockCalcinit, scaleTank, tankVol);
+  const mlBittersalz = mlFromStock(doseBittersalz, stockBittersalz, scaleTank, tankVol);
+
+  document.getElementById('lw_outRot').innerHTML = fmt(mlRot) + '<span class="unit">ml</span>';
+  document.getElementById('lw_outCalcinit').innerHTML = fmt(mlCalcinit) + '<span class="unit">ml</span>';
+  document.getElementById('lw_outBittersalz').innerHTML = fmt(mlBittersalz) + '<span class="unit">ml</span>';
+
+  const scaledRot = doseRot * scaleTank;
+  const scaledCalcinit = doseCalcinit * scaleTank;
+  const scaledBittersalz = doseBittersalz * scaleTank;
+
+  const rotN = num('lw_rot_n'), rotP = num('lw_rot_p'), rotK = num('lw_rot_k'), rotMg = num('lw_rot_mg');
+  const caN = num('lw_ca_n'), caCa = num('lw_ca_ca');
+  const bsMg = num('lw_bs_mg');
+
+  const waterN = num('lw_water_n'), waterK = num('lw_water_k');
+  const waterCa = num('lw_water_ca'), waterMg = num('lw_water_mg');
+  const N = scaledRot*rotN + scaledCalcinit*caN + waterN;
+  const P = scaledRot*rotP;
+  const K = scaledRot*rotK + waterK;
+  const Ca = scaledCalcinit*caCa + waterCa;
+  const Mg = scaledRot*rotMg + scaledBittersalz*bsMg + waterMg;
+
+  document.getElementById('lw_n_N').textContent = fmtN(N);
+  document.getElementById('lw_n_P').textContent = fmtN(P);
+  document.getElementById('lw_n_K').textContent = fmtN(K);
+  document.getElementById('lw_n_Ca').textContent = fmtN(Ca);
+  document.getElementById('lw_n_Mg').textContent = fmtN(Mg);
+
+  document.getElementById('lw_tankNote').textContent =
+    'Bei EC ' + fmt(tankEc) + ': Rot ' + fmt(scaledRot) + ' g/l · Calcinit ' + fmt(scaledCalcinit) + ' g/l · Bittersalz ' + fmt(scaledBittersalz) + ' g/l';
+
+  const abVol = num('lw_abVol');
+  const abCur = num('lw_abCur');
+  const abTarget = num('lw_abTarget');
+  const deltaEc = abTarget - abCur;
+  const warnEl = document.getElementById('lw_abWarn');
+
+  if(deltaEc <= 0){
+    warnEl.classList.add('show');
+    document.getElementById('lw_outRotad').innerHTML = '0<span class="unit">ml</span>';
+    document.getElementById('lw_outCalcinitad').innerHTML = '0<span class="unit">ml</span>';
+    document.getElementById('lw_outBittersalzad').innerHTML = '0<span class="unit">ml</span>';
+  } else {
+    warnEl.classList.remove('show');
+    const scaleAB = baseEc > 0 ? deltaEc / baseEc : 0;
+    const mlRotad = mlFromStock(doseRot, stockRot, scaleAB, abVol);
+    const mlCalcinitad = mlFromStock(doseCalcinit, stockCalcinit, scaleAB, abVol);
+    const mlBittersalzad = mlFromStock(doseBittersalz, stockBittersalz, scaleAB, abVol);
+    document.getElementById('lw_outRotad').innerHTML = fmt(mlRotad) + '<span class="unit">ml</span>';
+    document.getElementById('lw_outCalcinitad').innerHTML = fmt(mlCalcinitad) + '<span class="unit">ml</span>';
+    document.getElementById('lw_outBittersalzad').innerHTML = fmt(mlBittersalzad) + '<span class="unit">ml</span>';
+  }
+}
+
 const ATH_EC = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
 const ATH_CORE_ML10L = [16, 25, 34, 44, 54, 64, 75];
 const ATH_PARTNER_ML10L = [27, 42, 57, 73, 90, 107, 124];
@@ -670,14 +881,15 @@ function interpolateTable(ecTarget, xs, ys){
 }
 
 function calcAthena(){
-  const fadeRatio = num('ath_fadeRatio');
+  const fadeAt2 = num('ath_fadeAt2');
+  const fadeAt3 = num('ath_fadeAt3');
   const tankVol = num('ath_tankVol');
   const tankEc = num('ath_tankEc');
 
   // Core/Partner: offizielle 226g/l-Stammlösungstabelle, ml pro Liter Gießwasser
   const coreMlPerL = interpolateTable(tankEc, ATH_EC, ATH_CORE_ML10L) / 10;
   const partnerMlPerL = interpolateTable(tankEc, ATH_EC, ATH_PARTNER_ML10L) / 10;
-  const fadeMlPerL = coreMlPerL * fadeRatio;
+  const fadeMlPerL = interpolateTable(tankEc, [2.0, 3.0], [fadeAt2, fadeAt3]) / 10;
 
   const primaryMlPerL = athenaStage === 'fade' ? fadeMlPerL : coreMlPerL;
   const partnerUnit = 'ml';
@@ -747,7 +959,8 @@ function calcAthena(){
     // Addback: Differenz-EC gegen die Tabelle interpoliert (nicht einfach linear von 0)
     const coreMlDelta = interpolateTable(deltaEc, ATH_EC, ATH_CORE_ML10L) / 10;
     const partnerMlDelta = interpolateTable(deltaEc, ATH_EC, ATH_PARTNER_ML10L) / 10;
-    const primaryMlDelta = athenaStage === 'fade' ? (coreMlDelta * fadeRatio) : coreMlDelta;
+    const fadeMlDelta = interpolateTable(deltaEc, [2.0, 3.0], [fadeAt2, fadeAt3]) / 10;
+    const primaryMlDelta = athenaStage === 'fade' ? fadeMlDelta : coreMlDelta;
 
     const gPrimaryad = primaryMlDelta * abVol;
     const gPartnerad = partnerMlDelta * abVol;
@@ -763,23 +976,36 @@ const ALL_INPUT_IDS = [
   'coco_baseEc','coco_doseRot','coco_stockRot','coco_doseCalmag','coco_doseCleanse',
   'coco_tankVol','coco_tankEc','coco_abVol','coco_abCur','coco_abTarget',
   'coco_rot_n','coco_rot_p','coco_rot_k','coco_rot_mg','coco_cm_n','coco_cm_ca','coco_cm_mg',
-  'ath_fadeRatio',
+  'lw_baseEc','lw_doseRot','lw_stockRot','lw_doseCalcinit','lw_stockCalcinit','lw_doseBittersalz','lw_stockBittersalz',
+  'lw_tankVol','lw_tankEc','lw_abVol','lw_abCur','lw_abTarget',
+  'lw_rot_n','lw_rot_p','lw_rot_k','lw_rot_mg','lw_ca_n','lw_ca_ca','lw_bs_mg','lw_water_n','lw_water_k','lw_water_ca','lw_water_mg',
+  'ath_fadeAt2','ath_fadeAt3',
   'ath_tankVol','ath_tankEc','ath_abVol','ath_abCur','ath_abTarget',
   'ath_core_n','ath_core_ca','ath_grow_n','ath_grow_p','ath_grow_k','ath_grow_mg',
   'ath_bloom_n','ath_bloom_p','ath_bloom_k','ath_bloom_mg',
   'ath_fade_ca','ath_fade_k','ath_fade_mg'
 ];
 
+const SETTINGS_VERSION = 4;
+
 function saveSettings(){
   try{
     const data = {};
     ALL_INPUT_IDS.forEach(id => { data[id] = document.getElementById(id).value; });
     localStorage.setItem('duenger_settings', JSON.stringify(data));
+    localStorage.setItem('duenger_settings_version', String(SETTINGS_VERSION));
   }catch(e){ /* Speichern nicht verfügbar, still ignorieren */ }
 }
 
 function loadSettings(){
   try{
+    const storedVersion = parseInt(localStorage.getItem('duenger_settings_version') || '0', 10);
+    if(storedVersion !== SETTINGS_VERSION){
+      // Defaults haben sich geändert (z.B. korrigierte Nährstoffwerte) - alten Stand verwerfen
+      localStorage.removeItem('duenger_settings');
+      localStorage.setItem('duenger_settings_version', String(SETTINGS_VERSION));
+      return;
+    }
     const raw = localStorage.getItem('duenger_settings');
     if(raw){
       const data = JSON.parse(raw);
@@ -794,11 +1020,13 @@ function loadSettings(){
 
 document.querySelectorAll('#profileDwc input').forEach(el => el.addEventListener('input', () => { calcDwc(); saveSettings(); }));
 document.querySelectorAll('#profileCoco input').forEach(el => el.addEventListener('input', () => { calcCoco(); saveSettings(); }));
+document.querySelectorAll('#profileLw input').forEach(el => el.addEventListener('input', () => { calcLw(); saveSettings(); }));
 document.querySelectorAll('#profileAthena input').forEach(el => el.addEventListener('input', () => { calcAthena(); saveSettings(); }));
 
 loadSettings();
 calcDwc();
 calcCoco();
+calcLw();
 calcAthena();
 </script>
 </body>
