@@ -536,10 +536,8 @@
         <div class="field"><label>Stock Peters %</label><input type="number" id="lp_stockCs" value="10" step="1"></div>
         <div class="field"><label>Haifa Cal g/l</label><input type="number" id="lp_doseCa" value="0.6" step="0.01"></div>
         <div class="field"><label>Stock Haifa Cal %</label><input type="number" id="lp_stockCa" value="10" step="1"></div>
-        <div class="field"><label>Bittersalz g/l</label><input type="number" id="lp_doseBs" value="0.4" step="0.01"></div>
-        <div class="field"><label>Stock Bittersalz %</label><input type="number" id="lp_stockBs" value="10" step="1"></div>
       </div>
-      <p class="mini">Auf Leitungswasser-Basis (0 % verdünnt). Alle drei Salze aus separaten Stammlösungen, unabhängig voneinander dosiert.</p>
+      <p class="mini">Auf Leitungswasser-Basis (0 % verdünnt). Beide Salze aus separaten Stammlösungen (Mg kommt aus dem Peters), unabhängig voneinander dosiert.</p>
 
       <div class="settings-sub">Nährstoffgehalt pro Gramm (mg)</div>
       <div class="settings-grid">
@@ -547,11 +545,8 @@
         <div class="field"><label>Peters: P</label><input type="number" id="lp_cs_p" value="78.5" step="0.1"></div>
         <div class="field"><label>Peters: K</label><input type="number" id="lp_cs_k" value="298.8" step="0.1"></div>
         <div class="field"><label>Peters: Mg</label><input type="number" id="lp_cs_mg" value="18" step="0.1"></div>
-        <div class="field"><label>Peters: S</label><input type="number" id="lp_cs_s" value="29" step="0.1"></div>
         <div class="field"><label>Haifa Cal: N</label><input type="number" id="lp_ca_n" value="155" step="0.1"></div>
         <div class="field"><label>Haifa Cal: Ca</label><input type="number" id="lp_ca_ca" value="189.5" step="0.1"></div>
-        <div class="field"><label>Bittersalz: Mg</label><input type="number" id="lp_bs_mg" value="98.5" step="0.1"></div>
-        <div class="field"><label>Bittersalz: S</label><input type="number" id="lp_bs_s" value="130" step="0.1"></div>
       </div>
 
       <div class="settings-sub">Leitungswasser-Grundlast (mg/l, fix)</div>
@@ -560,7 +555,6 @@
         <div class="field"><label>K</label><input type="number" id="lp_water_k" value="7.6" step="0.1"></div>
         <div class="field"><label>Ca</label><input type="number" id="lp_water_ca" value="84" step="0.1"></div>
         <div class="field"><label>Mg</label><input type="number" id="lp_water_mg" value="17" step="0.1"></div>
-        <div class="field"><label>S</label><input type="number" id="lp_water_s" value="23.4" step="0.1"></div>
       </div>
       <p class="mini">Kommt zusätzlich zum Dünger dazu, unabhängig von der eingestellten EC.</p>
     </details>
@@ -575,16 +569,12 @@
         <div class="lcd"><div class="lbl">Peters Combi Sol</div><div class="val" id="lp_outCs">–<span class="unit">ml</span></div></div>
         <div class="lcd"><div class="lbl">Haifa Cal</div><div class="val" id="lp_outCa">–<span class="unit">ml</span></div></div>
       </div>
-      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
-        <div class="lcd"><div class="lbl">Bittersalz</div><div class="val" id="lp_outBs">–<span class="unit">ml</span></div></div>
-      </div>
       <div class="nutrient-grid">
         <div class="nutrient-cell"><div class="n-lbl">N</div><div class="n-val" id="lp_n_N">–</div></div>
         <div class="nutrient-cell"><div class="n-lbl">P</div><div class="n-val" id="lp_n_P">–</div></div>
         <div class="nutrient-cell"><div class="n-lbl">K</div><div class="n-val" id="lp_n_K">–</div></div>
         <div class="nutrient-cell"><div class="n-lbl">Ca</div><div class="n-val" id="lp_n_Ca">–</div></div>
         <div class="nutrient-cell"><div class="n-lbl">Mg</div><div class="n-val" id="lp_n_Mg">–</div></div>
-        <div class="nutrient-cell"><div class="n-lbl">S</div><div class="n-val" id="lp_n_S">–</div></div>
       </div>
       <div class="note" id="lp_tankNote"></div>
     </div>
@@ -599,9 +589,6 @@
       <div class="readout">
         <div class="lcd amber"><div class="lbl">Peters Combi Sol</div><div class="val" id="lp_outCsad">–<span class="unit">ml</span></div></div>
         <div class="lcd amber"><div class="lbl">Haifa Cal</div><div class="val" id="lp_outCaad">–<span class="unit">ml</span></div></div>
-      </div>
-      <div class="readout" style="grid-template-columns:1fr;margin-top:10px;">
-        <div class="lcd amber"><div class="lbl">Bittersalz</div><div class="val" id="lp_outBsad">–<span class="unit">ml</span></div></div>
       </div>
       <div class="warn" id="lp_abWarn">Aktueller EC liegt bereits auf oder über dem Ziel – kein Nachdosieren nötig.</div>
       <div class="note">Nimmt lineares Verhältnis zwischen Dosierung und EC an. Nach dem Nachdosieren mit EC-Meter kontrollieren.</div>
@@ -949,34 +936,30 @@ function calcLp(){
   const baseEc = num('lp_baseEc');
   const dCs = num('lp_doseCs'), sCs = num('lp_stockCs');
   const dCa = num('lp_doseCa'), sCa = num('lp_stockCa');
-  const dBs = num('lp_doseBs'), sBs = num('lp_stockBs');
   const out = (id, v) => { document.getElementById(id).innerHTML = fmt(v) + '<span class="unit">ml</span>'; };
   const tankVol = num('lp_tankVol'), tankEc = num('lp_tankEc');
   const sc = baseEc > 0 ? tankEc / baseEc : 0;
   out('lp_outCs', mlFromStock(dCs, sCs, sc, tankVol));
   out('lp_outCa', mlFromStock(dCa, sCa, sc, tankVol));
-  out('lp_outBs', mlFromStock(dBs, sBs, sc, tankVol));
-  const gCs = dCs*sc, gCa = dCa*sc, gBs = dBs*sc;
+  const gCs = dCs*sc, gCa = dCa*sc;
   const N = gCs*num('lp_cs_n') + gCa*num('lp_ca_n') + num('lp_water_n');
   const P = gCs*num('lp_cs_p');
   const K = gCs*num('lp_cs_k') + num('lp_water_k');
   const Ca = gCa*num('lp_ca_ca') + num('lp_water_ca');
-  const Mg = gCs*num('lp_cs_mg') + gBs*num('lp_bs_mg') + num('lp_water_mg');
-  const S = gCs*num('lp_cs_s') + gBs*num('lp_bs_s') + num('lp_water_s');
-  [['N',N],['P',P],['K',K],['Ca',Ca],['Mg',Mg],['S',S]].forEach(([k,v]) => { document.getElementById('lp_n_'+k).textContent = fmtN(v); });
+  const Mg = gCs*num('lp_cs_mg') + num('lp_water_mg');
+  [['N',N],['P',P],['K',K],['Ca',Ca],['Mg',Mg]].forEach(([k,v]) => { document.getElementById('lp_n_'+k).textContent = fmtN(v); });
   document.getElementById('lp_tankNote').textContent =
-    'Bei EC ' + fmt(tankEc) + ': Peters ' + fmt(gCs) + ' g/l · Haifa Cal ' + fmt(gCa) + ' g/l · Bittersalz ' + fmt(gBs) + ' g/l';
+    'Bei EC ' + fmt(tankEc) + ': Peters ' + fmt(gCs) + ' g/l · Haifa Cal ' + fmt(gCa) + ' g/l';
   const abVol = num('lp_abVol'), delta = num('lp_abTarget') - num('lp_abCur');
   const warnEl = document.getElementById('lp_abWarn');
   if(delta <= 0){
     warnEl.classList.add('show');
-    ['lp_outCsad','lp_outCaad','lp_outBsad'].forEach(id => out(id, 0));
+    ['lp_outCsad','lp_outCaad'].forEach(id => out(id, 0));
   } else {
     warnEl.classList.remove('show');
     const sa = baseEc > 0 ? delta / baseEc : 0;
     out('lp_outCsad', mlFromStock(dCs, sCs, sa, abVol));
     out('lp_outCaad', mlFromStock(dCa, sCa, sa, abVol));
-    out('lp_outBsad', mlFromStock(dBs, sBs, sa, abVol));
   }
 }
 
@@ -1102,10 +1085,10 @@ const ALL_INPUT_IDS = [
   'lw_baseEc','lw_doseRot','lw_stockRot','lw_doseCalcinit','lw_stockCalcinit','lw_doseBittersalz','lw_stockBittersalz',
   'lw_tankVol','lw_tankEc','lw_abVol','lw_abCur','lw_abTarget',
   'lw_rot_n','lw_rot_p','lw_rot_k','lw_rot_mg','lw_ca_n','lw_ca_ca','lw_bs_mg','lw_water_n','lw_water_k','lw_water_ca','lw_water_mg',
-  'lp_baseEc','lp_doseCs','lp_stockCs','lp_doseCa','lp_stockCa','lp_doseBs','lp_stockBs',
+  'lp_baseEc','lp_doseCs','lp_stockCs','lp_doseCa','lp_stockCa',
   'lp_tankVol','lp_tankEc','lp_abVol','lp_abCur','lp_abTarget',
-  'lp_cs_n','lp_cs_p','lp_cs_k','lp_cs_mg','lp_cs_s','lp_ca_n','lp_ca_ca','lp_bs_mg','lp_bs_s',
-  'lp_water_n','lp_water_k','lp_water_ca','lp_water_mg','lp_water_s',
+  'lp_cs_n','lp_cs_p','lp_cs_k','lp_cs_mg','lp_ca_n','lp_ca_ca',
+  'lp_water_n','lp_water_k','lp_water_ca','lp_water_mg',
   'ath_fadeAt2','ath_fadeAt3',
   'ath_tankVol','ath_tankEc','ath_abVol','ath_abCur','ath_abTarget',
   'ath_core_n','ath_core_ca','ath_grow_n','ath_grow_p','ath_grow_k','ath_grow_mg',
